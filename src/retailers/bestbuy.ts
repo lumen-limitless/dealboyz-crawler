@@ -98,6 +98,6 @@ export async function bestbuyHandler(
         log.info(`Successfully extracted Best Buy price for SKU ${sku}: $${price.toFixed(2)}`);
         
     } catch (error) {
-        log.error(`Error processing Best Buy page for SKU ${sku}:`, error);
+        log.error(`Error processing Best Buy page for SKU ${sku}:`, { error: String(error) });
     }
 }

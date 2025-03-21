@@ -97,6 +97,6 @@ export async function ebayHandler(
         log.info(`Successfully extracted eBay price for SKU ${sku}: $${price.toFixed(2)}`);
         
     } catch (error) {
-        log.error(`Error processing eBay page for SKU ${sku}:`, error);
+        log.error(`Error processing eBay page for SKU ${sku}:`, { error: String(error) });
     }
 }

@@ -106,6 +106,6 @@ export async function amazonHandler(
         log.info(`Successfully extracted Amazon price for SKU ${sku}: $${price.toFixed(2)}`);
         
     } catch (error) {
-        log.error(`Error processing Amazon page for SKU ${sku}:`, error);
+        log.error(`Error processing Amazon page for SKU ${sku}:`, { error: String(error) });
     }
 }

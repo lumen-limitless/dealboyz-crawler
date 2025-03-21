@@ -99,6 +99,6 @@ export async function verizonHandler(
         log.info(`Successfully extracted Verizon price for SKU ${sku}: $${price.toFixed(2)}`);
         
     } catch (error) {
-        log.error(`Error processing Verizon page for SKU ${sku}:`, error);
+        log.error(`Error processing Verizon page for SKU ${sku}:`, { error: String(error) });
     }
 }
