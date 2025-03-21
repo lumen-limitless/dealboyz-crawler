@@ -1,68 +1,40 @@
 import { createPlaywrightRouter } from "crawlee";
+import { amazonHandler } from "./retailers/amazon.js";
+import { ebayHandler } from "./retailers/ebay.js";
+import { walmartHandler } from "./retailers/walmart.js";
+import { verizonHandler } from "./retailers/verizon.js";
+import { bestbuyHandler } from "./retailers/bestbuy.js";
+import { ProductDatabase } from "./database.js";
 
+// Initialize the database
+const db = new ProductDatabase();
+
+// Create a router to handle different retailers
 export const router = createPlaywrightRouter();
 
-router.addDefaultHandler(async ({ enqueueLinks, log }) => {
-  log.info(`enqueueing new URLs`);
-
-  // verizon products
-  await enqueueLinks({
-    globs: ["https://www.verizon.com/products/**"],
-    label: "verizon-product",
-  });
-
-  // amazon products
-  await enqueueLinks({
-    globs: ["https://www.amazon.com/s?k=**"],
-    label: "amazon-product",
-  });
+// Default handler for unrecognized retailers
+router.addDefaultHandler(async ({ request, log }) => {
+    log.info(`Processing ${request.url} with default handler`);
+    log.warning(`No specific handler found for retailer: ${request.userData.retailer}`);
 });
 
-router.addHandler(
-  "verizon-product",
-  async ({ request, page, log, pushData, enqueueLinks }) => {
-    await enqueueLinks({
-      globs: ["https://www.verizon.com/products/**"],
-      label: "product",
-    });
-    const title = await page.title();
-    log.info(`${title}`, { url: request.loadedUrl });
+// Register handlers for each retailer
+router.addHandler('amazon', async (context) => {
+    await amazonHandler(context, db);
+});
 
-    const price = await page.$eval(
-      'div[data-testid="accessorypriceid"]',
-      (el) => el.textContent,
-    );
+router.addHandler('ebay', async (context) => {
+    await ebayHandler(context, db);
+});
 
-    // attempt to add the product to the cart
-    await page.click('button[data-testid="cta-btn"]');
+router.addHandler('walmart', async (context) => {
+    await walmartHandler(context, db);
+});
 
-    await pushData({
-      url: request.loadedUrl,
-      title,
-      price,
-    });
-  },
-);
+router.addHandler('verizon', async (context) => {
+    await verizonHandler(context, db);
+});
 
-router.addHandler(
-  "amazon-product",
-  async ({ request, page, log, pushData, enqueueLinks }) => {
-    await enqueueLinks({
-      globs: ["https://www.amazon.com/s?k=**"],
-      label: "product",
-    });
-    const title = await page.title();
-    log.info(`${title}`, { url: request.loadedUrl });
-
-    const price = await page.$eval(
-      "span.a-price-whole",
-      (el) => el.textContent,
-    );
-
-    await pushData({
-      url: request.loadedUrl,
-      title,
-      price,
-    });
-  },
-);
+router.addHandler('bestbuy', async (context) => {
+    await bestbuyHandler(context, db);
+});
