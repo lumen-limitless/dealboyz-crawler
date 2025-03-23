@@ -2,22 +2,22 @@
 import { PlaywrightCrawler, Dataset } from "crawlee";
 import { router } from "./routes.js";
 import { ProductDatabase } from "./database.js";
-import { loadSkus } from "./skuLoader.js";
+import { loadUpcs } from "./skuLoader.js";
 
 // Initialize the database
 const db = new ProductDatabase();
 
 // Main function to run the crawler
 async function main() {
-    // Load SKUs from configuration
-    const skus = await loadSkus();
+    // Load UPCs from configuration
+    const upcs = await loadUpcs();
     
-    if (skus.length === 0) {
-        console.error('No SKUs found to crawl. Please check your configuration.');
+    if (upcs.length === 0) {
+        console.error('No UPCs found to crawl. Please check your configuration.');
         return;
     }
     
-    console.log(`Starting price crawler for ${skus.length} SKUs across multiple retailers...`);
+    console.log(`Starting price crawler for ${upcs.length} UPCs across multiple retailers...`);
     
     // Create the crawler
     const crawler = new PlaywrightCrawler({
@@ -35,38 +35,38 @@ async function main() {
         persistCookiesPerSession: true,
     });
     
-    // Generate URLs for each SKU and retailer
+    // Generate URLs for each UPC and retailer
     const startUrls = [];
     
-    for (const sku of skus) {
+    for (const upc of upcs) {
         // Amazon
         startUrls.push({
-            url: `https://www.amazon.com/s?k=${sku}`,
-            userData: { retailer: 'amazon', sku }
+            url: `https://www.amazon.com/s?k=${upc}`,
+            userData: { retailer: 'amazon', upc }
         });
         
         // eBay
         startUrls.push({
-            url: `https://www.ebay.com/sch/i.html?_nkw=${sku}`,
-            userData: { retailer: 'ebay', sku }
+            url: `https://www.ebay.com/sch/i.html?_nkw=${upc}`,
+            userData: { retailer: 'ebay', upc }
         });
         
         // Walmart
         startUrls.push({
-            url: `https://www.walmart.com/search?q=${sku}`,
-            userData: { retailer: 'walmart', sku }
+            url: `https://www.walmart.com/search?q=${upc}`,
+            userData: { retailer: 'walmart', upc }
         });
         
         // Verizon
         startUrls.push({
-            url: `https://www.verizon.com/search/?q=${sku}`,
-            userData: { retailer: 'verizon', sku }
+            url: `https://www.verizon.com/search/?q=${upc}`,
+            userData: { retailer: 'verizon', upc }
         });
         
         // Best Buy
         startUrls.push({
-            url: `https://www.bestbuy.com/site/searchpage.jsp?st=${sku}`,
-            userData: { retailer: 'bestbuy', sku }
+            url: `https://www.bestbuy.com/site/searchpage.jsp?st=${upc}`,
+            userData: { retailer: 'bestbuy', upc }
         });
     }
     
@@ -81,10 +81,10 @@ async function main() {
 
 // Function to analyze price discrepancies
 async function analyzePriceDiscrepancies(db: ProductDatabase) {
-    const skus = await db.getUniqueSkus();
+    const upcs = await db.getUniqueUpcs();
     
-    for (const sku of skus) {
-        const prices = await db.getPricesBySku(sku);
+    for (const upc of upcs) {
+        const prices = await db.getPricesByUpc(upc);
         
         if (prices.length > 1) {
             // Calculate price statistics
@@ -96,14 +96,14 @@ async function analyzePriceDiscrepancies(db: ProductDatabase) {
             
             // Log significant price discrepancies (more than 5%)
             if (percentDiff > 5) {
-                console.log(`Price discrepancy found for SKU ${sku}:`);
+                console.log(`Price discrepancy found for UPC ${upc}:`);
                 prices.forEach(p => {
                     console.log(`  ${p.retailer}: $${p.price.toFixed(2)}`);
                 });
                 console.log(`  Difference: $${priceDiff.toFixed(2)} (${percentDiff.toFixed(2)}%)`);
                 
                 // Log the discrepancy to the database
-                await db.logDiscrepancy(sku, prices, priceDiff, percentDiff);
+                await db.logDiscrepancy(upc, prices, priceDiff, percentDiff);
             }
         }
     }

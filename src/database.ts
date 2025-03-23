@@ -3,7 +3,7 @@ import path from "path";
 
 // Define types for our data
 export interface ProductPrice {
-    sku: string;
+    upc: string;
     retailer: string;
     price: number;
     currency: string;
@@ -13,7 +13,7 @@ export interface ProductPrice {
 }
 
 export interface PriceDiscrepancy {
-    sku: string;
+    upc: string;
     prices: ProductPrice[];
     priceDifference: number;
     percentageDifference: number;
@@ -82,13 +82,13 @@ export class ProductDatabase {
     
     // Log a price discrepancy
     async logDiscrepancy(
-        sku: string, 
+        upc: string, 
         prices: ProductPrice[], 
         priceDifference: number, 
         percentageDifference: number
     ): Promise<void> {
         const discrepancy: PriceDiscrepancy = {
-            sku,
+            upc,
             prices,
             priceDifference,
             percentageDifference,
@@ -99,16 +99,16 @@ export class ProductDatabase {
         await this.saveDiscrepancies();
     }
     
-    // Get all prices for a specific SKU
-    async getPricesBySku(sku: string): Promise<ProductPrice[]> {
-        return this.prices.filter(price => price.sku === sku);
+    // Get all prices for a specific UPC
+    async getPricesByUpc(upc: string): Promise<ProductPrice[]> {
+        return this.prices.filter(price => price.upc === upc);
     }
     
-    // Get all unique SKUs in the database
-    async getUniqueSkus(): Promise<string[]> {
-        const skus = new Set<string>();
-        this.prices.forEach(price => skus.add(price.sku));
-        return Array.from(skus);
+    // Get all unique UPCs in the database
+    async getUniqueUpcs(): Promise<string[]> {
+        const upcs = new Set<string>();
+        this.prices.forEach(price => upcs.add(price.upc));
+        return Array.from(upcs);
     }
     
     // Get all discrepancies
@@ -116,8 +116,8 @@ export class ProductDatabase {
         return this.discrepancies;
     }
     
-    // Get discrepancies for a specific SKU
-    async getDiscrepanciesBySku(sku: string): Promise<PriceDiscrepancy[]> {
-        return this.discrepancies.filter(discrepancy => discrepancy.sku === sku);
+    // Get discrepancies for a specific UPC
+    async getDiscrepanciesByUpc(upc: string): Promise<PriceDiscrepancy[]> {
+        return this.discrepancies.filter(discrepancy => discrepancy.upc === upc);
     }
 }

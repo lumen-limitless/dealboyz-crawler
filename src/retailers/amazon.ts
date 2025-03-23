@@ -5,8 +5,8 @@ export async function amazonHandler(
     { request, page, log }: PlaywrightCrawlingContext,
     db: ProductDatabase
 ): Promise<void> {
-    const { sku, retailer } = request.userData;
-    log.info(`Processing Amazon page for SKU: ${sku}`);
+    const { upc, retailer } = request.userData;
+    log.info(`Processing Amazon page for UPC: ${upc}`);
     
     try {
         // Wait for product information to load
@@ -15,14 +15,14 @@ export async function amazonHandler(
         // Check if we have search results
         const noResults = await page.$$('.s-no-outline');
         if (noResults.length > 0) {
-            log.info(`No results found on Amazon for SKU: ${sku}`);
+            log.info(`No results found on Amazon for UPC: ${upc}`);
             return;
         }
         
         // Get the first product result
         const firstProduct = await page.$('.s-result-item[data-asin]:not(.AdHolder)');
         if (!firstProduct) {
-            log.info(`No valid product found on Amazon for SKU: ${sku}`);
+            log.info(`No valid product found on Amazon for UPC: ${upc}`);
             return;
         }
         
@@ -33,7 +33,7 @@ export async function amazonHandler(
         }, firstProduct);
         
         if (!productUrl) {
-            log.warning(`Could not extract product URL for SKU: ${sku}`);
+            log.warning(`Could not extract product URL for UPC: ${upc}`);
             return;
         }
         
@@ -78,14 +78,14 @@ export async function amazonHandler(
         }
         
         if (!priceText) {
-            log.warning(`Could not extract price for Amazon product, SKU: ${sku}`);
+            log.warning(`Could not extract price for Amazon product, UPC: ${upc}`);
             return;
         }
         
         // Parse the price
         const priceMatch = priceText.match(/\$?([0-9]+(?:\.[0-9]+)?)/);
         if (!priceMatch) {
-            log.warning(`Could not parse price text: ${priceText} for SKU: ${sku}`);
+            log.warning(`Could not parse price text: ${priceText} for UPC: ${upc}`);
             return;
         }
         
@@ -93,7 +93,7 @@ export async function amazonHandler(
         
         // Save the product price to the database
         const productPrice: ProductPrice = {
-            sku,
+            upc,
             retailer,
             price,
             currency: 'USD',
@@ -103,9 +103,9 @@ export async function amazonHandler(
         };
         
         await db.addPrice(productPrice);
-        log.info(`Successfully extracted Amazon price for SKU ${sku}: $${price.toFixed(2)}`);
+        log.info(`Successfully extracted Amazon price for UPC ${upc}: $${price.toFixed(2)}`);
         
     } catch (error) {
-        log.error(`Error processing Amazon page for SKU ${sku}:`, { error: String(error) });
+        log.error(`Error processing Amazon page for UPC ${upc}:`, { error: String(error) });
     }
 }

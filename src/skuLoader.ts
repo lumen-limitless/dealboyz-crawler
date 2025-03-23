@@ -1,29 +1,29 @@
 import { promises as fs } from "fs";
 import path from "path";
 
-// Function to load SKUs from a configuration file
-export async function loadSkus(): Promise<string[]> {
+// Function to load UPCs from a configuration file
+export async function loadUpcs(): Promise<string[]> {
     try {
-        const configPath = path.join(process.cwd(), 'config', 'skus.json');
+        const configPath = path.join(process.cwd(), 'config', 'upcs.json');
         const data = await fs.readFile(configPath, 'utf8');
         const config = JSON.parse(data);
         
-        if (Array.isArray(config.skus)) {
-            return config.skus;
+        if (Array.isArray(config.upcs)) {
+            return config.upcs;
         } else {
-            console.error('Invalid SKUs configuration format. Expected an array of SKUs.');
+            console.error('Invalid UPCs configuration format. Expected an array of UPCs.');
             return [];
         }
     } catch (error) {
-        console.error('Error loading SKUs:', error);
+        console.error('Error loading UPCs:', error);
         
-        // Return some default SKUs for testing if the file doesn't exist
+        // Return some default UPCs for testing if the file doesn't exist
         return [
-            'B07ZPKBL7Y', // Example iPhone SKU
-            'B09G9HD6PD', // Example Samsung Galaxy SKU
-            'B08F7N8PDP', // Example Sony PlayStation 5 SKU
-            'B08H75RTZ8', // Example Xbox Series X SKU
-            'B09DFHJTF5'  // Example Apple Watch SKU
+            '190199380356', // Example iPhone UPC
+            '887276559483', // Example Samsung Galaxy UPC
+            '711719541028', // Example Sony PlayStation 5 UPC
+            '889842640809', // Example Xbox Series X UPC
+            '194252058787'  // Example Apple Watch UPC
         ];
     }
 }
