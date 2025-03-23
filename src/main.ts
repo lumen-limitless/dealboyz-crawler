@@ -2,23 +2,23 @@
 import { PlaywrightCrawler } from 'crawlee';
 import { ProductDatabase } from './database.js';
 import { router } from './routes.js';
-import { loadUpcs } from './upcLoader.js';
+import { loadProducts, Product } from './productLoader.js';
 
 // Initialize the database
 const db = new ProductDatabase();
 
 // Main function to run the crawler
 async function main() {
-  // Load UPCs from configuration
-  const upcs = await loadUpcs();
+  // Load products from configuration
+  const products = await loadProducts();
 
-  if (upcs.length === 0) {
-    console.error('No UPCs found to crawl. Please check your configuration.');
+  if (products.length === 0) {
+    console.error('No products found to crawl. Please check your configuration.');
     return;
   }
 
   console.log(
-    `Starting price crawler for ${upcs.length} UPCs across multiple retailers...`,
+    `Starting price crawler for ${products.length} products across multiple retailers...`,
   );
 
   // Create the crawler
@@ -37,38 +37,40 @@ async function main() {
     persistCookiesPerSession: true,
   });
 
-  // Generate URLs for each UPC and retailer
+  // Generate URLs for each product and retailer
   const startUrls = [];
 
-  for (const upc of upcs) {
+  for (const product of products) {
+    const encodedTitle = encodeURIComponent(product.title);
+    
     // Amazon
     startUrls.push({
-      url: `https://www.amazon.com/s?k=${upc}`,
-      userData: { retailer: 'amazon', label: 'amazon', upc },
+      url: `https://www.amazon.com/s?k=${encodedTitle}`,
+      userData: { retailer: 'amazon', label: 'amazon', upc: product.upc, title: product.title },
     });
 
     // eBay
     startUrls.push({
-      url: `https://www.ebay.com/sch/i.html?_nkw=${upc}`,
-      userData: { retailer: 'ebay', upc },
+      url: `https://www.ebay.com/sch/i.html?_nkw=${encodedTitle}`,
+      userData: { retailer: 'ebay', upc: product.upc, title: product.title },
     });
 
     // Walmart
     startUrls.push({
-      url: `https://www.walmart.com/search?q=${upc}`,
-      userData: { retailer: 'walmart', upc },
+      url: `https://www.walmart.com/search?q=${encodedTitle}`,
+      userData: { retailer: 'walmart', upc: product.upc, title: product.title },
     });
 
     // Verizon
     startUrls.push({
-      url: `https://www.verizon.com/search/?q=${upc}`,
-      userData: { retailer: 'verizon', upc },
+      url: `https://www.verizon.com/search/?q=${encodedTitle}`,
+      userData: { retailer: 'verizon', upc: product.upc, title: product.title },
     });
 
     // Best Buy
     startUrls.push({
-      url: `https://www.bestbuy.com/site/searchpage.jsp?st=${upc}`,
-      userData: { retailer: 'bestbuy', upc },
+      url: `https://www.bestbuy.com/site/searchpage.jsp?st=${encodedTitle}`,
+      userData: { retailer: 'bestbuy', upc: product.upc, title: product.title },
     });
   }
 
