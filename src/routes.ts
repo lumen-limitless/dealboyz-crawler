@@ -1,10 +1,10 @@
-import { createPlaywrightRouter } from "crawlee";
-import { amazonHandler } from "./retailers/amazon.js";
-import { ebayHandler } from "./retailers/ebay.js";
-import { walmartHandler } from "./retailers/walmart.js";
-import { verizonHandler } from "./retailers/verizon.js";
-import { bestbuyHandler } from "./retailers/bestbuy.js";
-import { ProductDatabase } from "./database.js";
+import { createPlaywrightRouter } from 'crawlee';
+import { ProductDatabase } from './database.js';
+import { amazonHandler } from './retailers/amazon.js';
+import { bestbuyHandler } from './retailers/bestbuy.js';
+import { ebayHandler } from './retailers/ebay.js';
+import { verizonHandler } from './retailers/verizon.js';
+import { walmartHandler } from './retailers/walmart.js';
 
 // Initialize the database
 const db = new ProductDatabase();
@@ -14,27 +14,29 @@ export const router = createPlaywrightRouter();
 
 // Default handler for unrecognized retailers
 router.addDefaultHandler(async ({ request, log }) => {
-    log.info(`Processing ${request.url} with default handler`);
-    log.warning(`No specific handler found for retailer: ${request.userData.retailer}`);
+  log.info(`Processing ${request.url} with default handler`);
+  log.warning(
+    `No specific handler found for retailer: ${request.userData.retailer}`,
+  );
 });
 
 // Register handlers for each retailer
 router.addHandler('amazon', async (context) => {
-    await amazonHandler(context, db);
+  await amazonHandler(context, db);
 });
 
 router.addHandler('ebay', async (context) => {
-    await ebayHandler(context, db);
+  await ebayHandler(context, db);
 });
 
 router.addHandler('walmart', async (context) => {
-    await walmartHandler(context, db);
+  await walmartHandler(context, db);
 });
 
 router.addHandler('verizon', async (context) => {
-    await verizonHandler(context, db);
+  await verizonHandler(context, db);
 });
 
 router.addHandler('bestbuy', async (context) => {
-    await bestbuyHandler(context, db);
+  await bestbuyHandler(context, db);
 });
