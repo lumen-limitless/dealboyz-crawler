@@ -52,25 +52,25 @@ async function main() {
     // eBay
     startUrls.push({
       url: `https://www.ebay.com/sch/i.html?_nkw=${encodedTitle}`,
-      userData: { retailer: 'ebay', upc: product.upc, title: product.title },
+      userData: { retailer: 'ebay', label: 'ebay', upc: product.upc, title: product.title },
     });
 
     // Walmart
     startUrls.push({
       url: `https://www.walmart.com/search?q=${encodedTitle}`,
-      userData: { retailer: 'walmart', upc: product.upc, title: product.title },
+      userData: { retailer: 'walmart', label: 'walmart', upc: product.upc, title: product.title },
     });
 
     // Verizon
     startUrls.push({
       url: `https://www.verizon.com/search/?q=${encodedTitle}`,
-      userData: { retailer: 'verizon', upc: product.upc, title: product.title },
+      userData: { retailer: 'verizon', label: 'verizon', upc: product.upc, title: product.title },
     });
 
     // Best Buy
     startUrls.push({
       url: `https://www.bestbuy.com/site/searchpage.jsp?st=${encodedTitle}`,
-      userData: { retailer: 'bestbuy', upc: product.upc, title: product.title },
+      userData: { retailer: 'bestbuy', label: 'bestbuy', upc: product.upc, title: product.title },
     });
   }
 
